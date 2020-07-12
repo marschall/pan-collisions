@@ -29,7 +29,11 @@ final class Pan {
     // Java initializes array with 0
     byte[] numbers = new byte[16];
     for (int i = 0; i < s.length(); i++) {
-      numbers[i] = (byte) (s.charAt(i) - '0');
+      char c = s.charAt(i);
+      if ((c < '0') || (c > '9')) {
+        throw new IllegalArgumentException("invalid character");
+      }
+      numbers[i] = (byte) (c - '0');
     }
     return new Pan(numbers);
   }
@@ -43,12 +47,35 @@ final class Pan {
     return buffer.toString();
   }
 
+  long difference(Pan other) {
+    long difference = 0L;
+    // ignore Luhn
+    for (int i = 0; i < (this.numbers.length - 1); i++) {
+      difference *= 10L;
+      difference += other.numbers[i] - this.numbers[i];
+    }
+    return difference;
+  }
+
   void increment() {
 
   }
 
   private void computeLuhn() {
-
+    int sum = 0;
+    // we know length is 16 so start at the beginning
+    for (int i = 0; i < 16 ; ++i) {
+      int digit = this.numbers[i];
+      // we know length is 16
+      if ((i % 2) != 0) {
+        digit = digit * 2;
+      }
+      if (digit > 9) {
+        digit = digit - 9;
+      }
+      sum = sum + digit;
+    }
+    this.numbers[15] = (byte) ((sum * 9) % 10);
   }
 
   Sha1Hasher createHasher() {
