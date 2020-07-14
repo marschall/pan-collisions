@@ -25,4 +25,19 @@ class PanTest {
     assertEquals(100000000000000L, Pan.valueOf("500000000000000").difference(Pan.valueOf("600000000000000")));
   }
 
+  @Test
+  void increment() {
+    Pan pan = Pan.valueOf("514853000000000");
+    pan.increment();
+    assertEquals(Pan.valueOf("514853000000001"), pan);
+
+    pan = Pan.valueOf("514853000000009");
+    pan.increment();
+    assertEquals(Pan.valueOf("514853000000010"), pan);
+
+    pan = Pan.valueOf("514853999999999");
+    pan.increment();
+    assertEquals(Pan.valueOf("5148540000000000"), pan);
+  }
+
 }

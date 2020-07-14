@@ -4,6 +4,9 @@ import java.util.Objects;
 
 /**
  * A simple 160 bit value.
+ * <p>
+ * Object size: 32 bytes on 64bit with compressed OOPs
+ * Object size: 40 bytes on 64bit with non-compressed OOPs
  */
 final class I160 {
 

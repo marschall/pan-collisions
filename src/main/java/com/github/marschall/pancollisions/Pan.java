@@ -2,6 +2,7 @@ package com.github.marschall.pancollisions;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 /**
  * A payment card number
@@ -58,7 +59,15 @@ final class Pan {
   }
 
   void increment() {
-
+    for (int i = 14; i >= 0; i--) {
+      if (this.numbers[i] < 9) {
+        this.numbers[i] += 1;
+        Arrays.fill(this.numbers, i + 1, this.numbers.length, (byte) 0);
+        this.computeLuhn();
+        return;
+      }
+    }
+    throw new IllegalStateException("overflow");
   }
 
   private void computeLuhn() {
@@ -78,11 +87,31 @@ final class Pan {
     this.numbers[15] = (byte) ((sum * 9) % 10);
   }
 
+
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(this.numbers);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof Pan)) {
+      return false;
+    }
+    Pan other = (Pan) obj;
+    return Arrays.equals(this.numbers, other.numbers);
+  }
+
   Sha1Hasher createHasher() {
     return new Sha1Hasher();
   }
 
   static class Sha1Hasher {
+    // https://stackoverflow.com/questions/21107350/how-can-i-access-sha-intrinsic
 
     private MessageDigest messageDigest;
 
