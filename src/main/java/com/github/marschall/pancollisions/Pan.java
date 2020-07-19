@@ -3,6 +3,7 @@ package com.github.marschall.pancollisions;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.Arrays;
 
 /**
@@ -114,6 +115,8 @@ final class Pan {
 
   static class CustomHahser implements Hasher {
 
+    private static final int[] X = new int[] {83952648, 84082688, 0, 1, -2147483648, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
     CustomHahser() {
       super();
     }
@@ -138,7 +141,9 @@ final class Pan {
               | (Byte.toUnsignedInt(pan.numbers[14]) << 8)
               | Byte.toUnsignedInt(pan.numbers[15]);
       w[4] = 0x80_00_00_00;
-      w[79] = 16 * 8;
+      w[15] = 16 * 8;
+
+      int mismatch = Arrays.mismatch(w, X);
 
       for (int i = 16; i < 80; i++) {
         w[i] = Integer.rotateLeft((w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16]), 1);
@@ -160,8 +165,9 @@ final class Pan {
 
     Sha1Hasher() {
       try {
-        this.messageDigest = MessageDigest.getInstance("SHA-1");
-      } catch (NoSuchAlgorithmException e) {
+//        this.messageDigest = MessageDigest.getInstance("SHA-1");
+        this.messageDigest = MessageDigest.getInstance("SHA-1", "BC");
+      } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
         throw new IllegalStateException("SHA-1 not availalbe", e);
       }
       this.outputBuffer = new byte[BUFFER_SIZE];

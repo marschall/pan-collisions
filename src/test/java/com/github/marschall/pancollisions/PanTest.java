@@ -1,7 +1,11 @@
 package com.github.marschall.pancollisions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.security.Security;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.Test;
 
 class PanTest {
@@ -38,6 +42,16 @@ class PanTest {
     pan = Pan.valueOf("514853999999999");
     pan.increment();
     assertEquals(Pan.valueOf("5148540000000000"), pan);
+  }
+
+  @Test
+  void hash() {
+    Security.addProvider(new BouncyCastleProvider());
+    Pan pan = Pan.valueOf("5148530000");
+    Hasher hasher = pan.createHasher();
+    I160 hash = hasher.hash(pan);
+    assertNotNull(hash);
+    assertEquals(I160.valueOf(new byte[] {107, -86, -27, 56, 17, 45, -37, 45, 118, -61, 48, 98, 90, -16, 53, 9, 106, -71, -7, -65}), hash);
   }
 
 }
