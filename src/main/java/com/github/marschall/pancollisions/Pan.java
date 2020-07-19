@@ -1,5 +1,6 @@
 package com.github.marschall.pancollisions;
 
+import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -106,14 +107,55 @@ final class Pan {
     return Arrays.equals(this.numbers, other.numbers);
   }
 
-  Sha1Hasher createHasher() {
+  Hasher createHasher() {
     return new Sha1Hasher();
+//    return new CustomHahser();
   }
 
-  static class Sha1Hasher {
+  static class CustomHahser implements Hasher {
+
+    CustomHahser() {
+      super();
+    }
+
+    @Override
+    public I160 hash(Pan pan) {
+      int[] w = new int[80];
+      w[0] = (Byte.toUnsignedInt(pan.numbers[0]) << 24)
+              | (Byte.toUnsignedInt(pan.numbers[1]) << 16)
+              | (Byte.toUnsignedInt(pan.numbers[2]) << 8)
+              | Byte.toUnsignedInt(pan.numbers[3]);
+      w[1] = (Byte.toUnsignedInt(pan.numbers[4]) << 24)
+              | (Byte.toUnsignedInt(pan.numbers[5]) << 16)
+              | (Byte.toUnsignedInt(pan.numbers[6]) << 8)
+              | Byte.toUnsignedInt(pan.numbers[7]);
+      w[2] = (Byte.toUnsignedInt(pan.numbers[8]) << 24)
+              | (Byte.toUnsignedInt(pan.numbers[9]) << 16)
+              | (Byte.toUnsignedInt(pan.numbers[10]) << 8)
+              | Byte.toUnsignedInt(pan.numbers[11]);
+      w[3] = (Byte.toUnsignedInt(pan.numbers[12]) << 24)
+              | (Byte.toUnsignedInt(pan.numbers[13]) << 16)
+              | (Byte.toUnsignedInt(pan.numbers[14]) << 8)
+              | Byte.toUnsignedInt(pan.numbers[15]);
+      w[4] = 0x80_00_00_00;
+      w[79] = 16 * 8;
+
+      for (int i = 16; i < 80; i++) {
+        w[i] = Integer.rotateLeft((w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16]), 1);
+      }
+
+
+      return null;
+    }
+
+  }
+
+  static class Sha1Hasher implements Hasher {
     // https://stackoverflow.com/questions/21107350/how-can-i-access-sha-intrinsic
 
-    private MessageDigest messageDigest;
+    private static final int BUFFER_SIZE = 160 / 8;
+    private final MessageDigest messageDigest;
+    private final byte[] outputBuffer;
 
 
     Sha1Hasher() {
@@ -122,12 +164,18 @@ final class Pan {
       } catch (NoSuchAlgorithmException e) {
         throw new IllegalStateException("SHA-1 not availalbe", e);
       }
+      this.outputBuffer = new byte[BUFFER_SIZE];
     }
 
-    I160 hash(Pan pan) {
-      this.messageDigest.reset();
-      byte[] digest = this.messageDigest.digest(pan.numbers);
-      return I160.valueOf(digest);
+    @Override
+    public I160 hash(Pan pan) {
+      this.messageDigest.update(pan.numbers);
+      try {
+        this.messageDigest.digest(this.outputBuffer, 0, BUFFER_SIZE);
+      } catch (DigestException e) {
+        throw new RuntimeException("could not digest message", e);
+      }
+      return I160.valueOf(this.outputBuffer);
     }
 
   }

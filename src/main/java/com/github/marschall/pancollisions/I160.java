@@ -1,7 +1,5 @@
 package com.github.marschall.pancollisions;
 
-import java.util.Objects;
-
 /**
  * A simple 160 bit value.
  * <p>
@@ -22,7 +20,13 @@ final class I160 {
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.value1, this.value2, this.value3);
+    int result = 1;
+
+    result = (31 * result) + Long.hashCode(this.value1);
+    result = (31 * result) + Long.hashCode(this.value2);
+    result = (31 * result) + this.value3;
+
+    return result;
   }
 
   @Override

@@ -38,6 +38,11 @@
     </dependency>
     <dependency>
       <groupId>com.github.marschall</groupId>
+      <artifactId>charsequences</artifactId>
+      <version>0.7.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.marschall</groupId>
       <artifactId>mini-csv</artifactId>
       <version>0.3.1-SNAPSHOT</version>
     </dependency>

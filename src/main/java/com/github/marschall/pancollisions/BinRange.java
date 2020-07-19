@@ -18,9 +18,20 @@ final class BinRange {
 
   private final long size;
 
-  private BinRange(Pan start, long size) {
+  private final String country;
+
+  private BinRange(Pan start, long size, String country) {
     this.start = start;
     this.size = size;
+    this.country = country;
+  }
+
+  Pan getStart() {
+    return this.start;
+  }
+
+  String getCountry() {
+    return this.country;
   }
 
   public long size() {
@@ -58,25 +69,28 @@ final class BinRange {
 
       Pan start = null;
       Pan end = null;
+      String country = null;
       while (cellSet.next()) {
         int columnIndex = cellSet.getColumnIndex();
         if (columnIndex == 3) {
-          CharSequence charSequence = cellSet.getCharSequence();
-          if (isPan(charSequence)) {
-            start = Pan.valueOf(charSequence);
+          CharSequence accountRangeFrom = cellSet.getCharSequence();
+          if (isPan(accountRangeFrom)) {
+            start = Pan.valueOf(accountRangeFrom);
           }
         } else if (columnIndex == 4) {
-          CharSequence charSequence = cellSet.getCharSequence();
-          if (isPan(charSequence)) {
-            end = Pan.valueOf(charSequence);
+          CharSequence accountRangeTo = cellSet.getCharSequence();
+          if (isPan(accountRangeTo)) {
+            end = Pan.valueOf(accountRangeTo);
           }
-        } else if (columnIndex > 4) {
+        } else if (columnIndex == 8) {
+          country = cellSet.getCharSequence().toString();
+        } else if (columnIndex > 8) {
           break;
         }
       }
-      if ((start != null) && (end != null)) {
+      if ((start != null) && (end != null) && (country != null)) {
         long size = start.difference(end);
-        this.ranges.add(new BinRange(start, size));
+        this.ranges.add(new BinRange(start, size, country));
       }
 
     }
