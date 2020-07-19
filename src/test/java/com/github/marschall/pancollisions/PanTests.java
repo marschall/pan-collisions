@@ -8,7 +8,7 @@ import java.security.Security;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.Test;
 
-class PanTest {
+class PanTests {
 
   @Test
   void valueOf() {

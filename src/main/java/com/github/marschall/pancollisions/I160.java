@@ -6,7 +6,7 @@ package com.github.marschall.pancollisions;
  * Object size: 32 bytes on 64bit with compressed OOPs
  * Object size: 40 bytes on 64bit with non-compressed OOPs
  */
-final class I160 {
+final class I160 implements BitAccessor {
 
   private final long value1;
   private final long value2;
@@ -16,6 +16,18 @@ final class I160 {
     this.value1 = value1;
     this.value2 = value2;
     this.value3 = value3;
+  }
+
+  @Override
+  public int getFirstBits(int n) {
+    return Math.toIntExact(this.value1 >> (64 - n));
+  }
+
+  @Override
+  public int getNumberOfLeadingZeroes(int bitsToIgnore) {
+    int zeroes = 0;
+    
+    return zeroes;
   }
 
   @Override
