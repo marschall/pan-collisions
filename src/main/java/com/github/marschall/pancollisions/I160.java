@@ -8,35 +8,38 @@ package com.github.marschall.pancollisions;
  */
 final class I160 implements BitAccessor {
 
-  private final long value1;
+  private final int value1;
   private final long value2;
-  private final int value3;
+  private final long value3;
 
-  private I160(long value1, long value2, int value3) {
+  private I160(int value1, long value2, long value3) {
     this.value1 = value1;
     this.value2 = value2;
     this.value3 = value3;
   }
 
   @Override
-  public int getFirstBits(int n) {
-    return Math.toIntExact(this.value1 >> (64 - n));
+  public int getFirstBits() {
+    return this.value1;
   }
 
   @Override
-  public int getNumberOfLeadingZeroes(int bitsToIgnore) {
-    int zeroes = 0;
-    
-    return zeroes;
+  public int getNumberOfLeadingZeroes() {
+    if (this.value2 != 0L) {
+      return Long.numberOfLeadingZeros(this.value2);
+    } else {
+      return Long.numberOfLeadingZeros(this.value3) + 64;
+    }
+
   }
 
   @Override
   public int hashCode() {
     int result = 1;
 
-    result = (31 * result) + Long.hashCode(this.value1);
+    result = (31 * result) + this.value1;
     result = (31 * result) + Long.hashCode(this.value2);
-    result = (31 * result) + this.value3;
+    result = (31 * result) + Long.hashCode(this.value3);
 
     return result;
   }
@@ -59,28 +62,28 @@ final class I160 implements BitAccessor {
     if (b.length != 20) {
       throw new IllegalArgumentException("array length must be 20");
     }
-    long value1 = (Byte.toUnsignedLong(b[0]) << 56)
-                | (Byte.toUnsignedLong(b[1]) << 48)
-                | (Byte.toUnsignedLong(b[2]) << 40)
-                | (Byte.toUnsignedLong(b[3]) << 32)
-                | (Byte.toUnsignedLong(b[4]) << 24)
-                | (Byte.toUnsignedLong(b[5]) << 16)
-                | (Byte.toUnsignedLong(b[6]) << 8)
-                | Byte.toUnsignedLong(b[7]);
+    int value1 = (Byte.toUnsignedInt(b[0]) << 24)
+                | (Byte.toUnsignedInt(b[1]) << 16)
+                | (Byte.toUnsignedInt(b[2]) << 8)
+                | (Byte.toUnsignedInt(b[3]));
 
-    long value2 = (Byte.toUnsignedLong(b[8]) << 56)
-            | (Byte.toUnsignedLong(b[9]) << 48)
-            | (Byte.toUnsignedLong(b[10]) << 40)
-            | (Byte.toUnsignedLong(b[11]) << 32)
-            | (Byte.toUnsignedLong(b[12]) << 24)
-            | (Byte.toUnsignedLong(b[13]) << 16)
-            | (Byte.toUnsignedLong(b[14]) << 8)
-            | Byte.toUnsignedLong(b[15]);
+    long value2 = (Byte.toUnsignedLong(b[4]) << 56)
+            | (Byte.toUnsignedLong(b[5]) << 48)
+            | (Byte.toUnsignedLong(b[6]) << 40)
+            | (Byte.toUnsignedLong(b[7]) << 32)
+            | (Byte.toUnsignedLong(b[8]) << 24)
+            | (Byte.toUnsignedLong(b[9]) << 16)
+            | (Byte.toUnsignedLong(b[10]) << 8)
+            | (Byte.toUnsignedLong(b[11]));
 
-    int value3 = (Byte.toUnsignedInt(b[16]) << 24)
-            | (Byte.toUnsignedInt(b[17]) << 16)
-            | (Byte.toUnsignedInt(b[18]) << 8)
-            | Byte.toUnsignedInt(b[19]);
+    long value3 = (Byte.toUnsignedLong(b[12]) << 56)
+            | (Byte.toUnsignedLong(b[13]) << 48)
+            | (Byte.toUnsignedLong(b[14]) << 40)
+            | (Byte.toUnsignedLong(b[15]) << 32)
+            | (Byte.toUnsignedLong(b[16]) << 24)
+            | (Byte.toUnsignedLong(b[17]) << 16)
+            | (Byte.toUnsignedLong(b[18]) << 8)
+            | (Byte.toUnsignedLong(b[19]));
 
     return new I160(value1, value2, value3);
   }

@@ -17,8 +17,8 @@ public final class HyperLogLog {
   }
 
   public void add(BitAccessor value) {
-    int registerAddress = value.getFirstBits(this.registerBits);
-    int leadingZeroes = value.getNumberOfLeadingZeroes(this.registerBits);
+    int registerAddress = value.getFirstBits();
+    int leadingZeroes = value.getNumberOfLeadingZeroes();
     this.updateRegister(registerAddress, leadingZeroes + 1);
   }
 
@@ -26,7 +26,7 @@ public final class HyperLogLog {
     int current = this.readValueFrom(registerAddress);
     int max = Math.max(current, value);
     if (max > value) {
-      writeValueToRegister(registerAddress, max);
+      this.writeValueToRegister(registerAddress, max);
     }
   }
 

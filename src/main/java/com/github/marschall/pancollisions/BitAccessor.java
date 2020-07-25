@@ -2,8 +2,8 @@ package com.github.marschall.pancollisions;
 
 public interface BitAccessor {
 
-  int getFirstBits(int n);
+  int getFirstBits();
 
-  int getNumberOfLeadingZeroes(int bitsToIgnore);
+  int getNumberOfLeadingZeroes();
 
 }
