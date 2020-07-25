@@ -1,7 +1,18 @@
-
+```
 -Xmx56g
 -XX:+UseParallelGC
 -XX:+HeapDumpOnOutOfMemoryError
+```
+
+
+```
+-Xmx56g
+-XX:+UseParallelGC
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+UnlockDiagnosticVMOptions
+-XX:+DebugNonSafepoints
+-XX:StartFlightRecording=filename=recording.jfr,settings=profile
+```
 
 CHE PANs: 248'042'400'000
 

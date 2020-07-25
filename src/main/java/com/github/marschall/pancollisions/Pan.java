@@ -3,7 +3,6 @@ package com.github.marschall.pancollisions;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.util.Arrays;
 
 /**
@@ -165,9 +164,9 @@ final class Pan {
 
     Sha1Hasher() {
       try {
-//        this.messageDigest = MessageDigest.getInstance("SHA-1");
-        this.messageDigest = MessageDigest.getInstance("SHA-1", "BC");
-      } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+        this.messageDigest = MessageDigest.getInstance("SHA-1");
+//        this.messageDigest = MessageDigest.getInstance("SHA-1", "BC");
+      } catch (NoSuchAlgorithmException e) {
         throw new IllegalStateException("SHA-1 not availalbe", e);
       }
       this.outputBuffer = new byte[BUFFER_SIZE];

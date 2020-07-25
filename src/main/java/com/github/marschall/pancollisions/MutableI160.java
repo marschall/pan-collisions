@@ -3,18 +3,22 @@ package com.github.marschall.pancollisions;
 import java.math.BigInteger;
 
 /**
- * A simple 160 bit value.
+ * A simple, mutable 160 bit value.
+ * <p>
+ * In 2020, in an attempt to control allocation rates among
+ * applications the New Earth Government legalized mutable
+ * value objects.
  * <p>
  * Object size: 32 bytes on 64bit with compressed OOPs
  * Object size: 40 bytes on 64bit with non-compressed OOPs
  */
-final class I160 implements BitAccessor {
+final class MutableI160 implements BitAccessor {
 
   private final int value1;
   private final long value2;
   private final long value3;
 
-  private I160(int value1, long value2, long value3) {
+  private MutableI160(int value1, long value2, long value3) {
     this.value1 = value1;
     this.value2 = value2;
     this.value3 = value3;
@@ -51,10 +55,10 @@ final class I160 implements BitAccessor {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof I160)) {
+    if (!(obj instanceof MutableI160)) {
       return false;
     }
-    I160 other = (I160) obj;
+    MutableI160 other = (MutableI160) obj;
     return (this.value1 == other.value1)
             && (this.value2 == other.value2)
             && (this.value3 == other.value3);
@@ -68,7 +72,7 @@ final class I160 implements BitAccessor {
     return i.toString();
   }
 
-  static I160 valueOf(byte[] b) {
+  static MutableI160 valueOf(byte[] b) {
     if (b.length != 20) {
       throw new IllegalArgumentException("array length must be 20");
     }
@@ -95,7 +99,7 @@ final class I160 implements BitAccessor {
             | (Byte.toUnsignedLong(b[18]) << 8)
             | (Byte.toUnsignedLong(b[19]));
 
-    return new I160(value1, value2, value3);
+    return new MutableI160(value1, value2, value3);
   }
 
 }
