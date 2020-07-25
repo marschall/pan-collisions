@@ -17,16 +17,13 @@ public final class HyperLogLog {
 
   private static final VarHandle ARRAY_HANDLE = MethodHandles.arrayElementVarHandle(byte[].class);
 
-
   private final byte[][] registers;
-  private final int registerBits;
 
-  private final LongAdder collisions;
+  private final LongAdder conflicts;
 
-  public HyperLogLog(int registerBits) {
-    this.registerBits = registerBits;
+  public HyperLogLog() {
     this.registers = new byte[4][Integer.MAX_VALUE / 2];
-    this.collisions = new LongAdder();
+    this.conflicts = new LongAdder();
   }
 
   public void add(BitAccessor value) {
@@ -38,6 +35,8 @@ public final class HyperLogLog {
   private void updateRegister(int registerAddress, int value) {
     int current = this.readValueFrom(registerAddress);
     while (current < value) {
+      // if a concurrent update set the register to the same or a greater value
+      // abort the update
       current = this.writeValueToRegister(registerAddress, current, value);
     }
   }
@@ -57,7 +56,8 @@ public final class HyperLogLog {
     // a[registerAddress & 0x80_FF_FF_FF] = (byte) value;
     byte previous = (byte) ARRAY_HANDLE.compareAndExchangeRelease(a, registerAddress & REGISTER_MASK, (byte) expected, (byte) newValue);
     if (Byte.toUnsignedInt(previous) != expected) {
-      this.collisions.add(1L);
+      // concurrent update
+      this.conflicts.add(1L);
     }
     return Byte.toUnsignedInt(previous);
   }
@@ -73,6 +73,10 @@ public final class HyperLogLog {
     BigInteger mSquare = BigInteger.TWO.pow(64);
     // we don't multiply by am because we don't hash the input so we don't have to deal with hash collisions
     return BigInteger.ONE;
+  }
+
+  public long getAndResetConflicts() {
+    return this.conflicts.sumThenReset();
   }
 
   static final class ExponentRegister {

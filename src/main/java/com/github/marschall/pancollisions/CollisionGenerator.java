@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.impl.bag.mutable.HashBag;
 
+import com.github.marschall.pancollisions.Pan.MutableHasher;
+
 public final class CollisionGenerator {
 
   private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("#0.0000");
@@ -53,7 +55,7 @@ public final class CollisionGenerator {
 
   private static void generateCollisionsHyperLogLog(List<BinRange> ranges, long totalSize) throws InterruptedException {
     ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    HyperLogLog hyperLogLog = new HyperLogLog(128);
+    HyperLogLog hyperLogLog = new HyperLogLog();
     AtomicLong generated = new AtomicLong();
     for (BinRange range : ranges) {
       threadPool.submit(() -> enumerateBinRange(range, hyperLogLog, generated, totalSize));
@@ -61,13 +63,14 @@ public final class CollisionGenerator {
     threadPool.awaitTermination(365, TimeUnit.DAYS);
     System.out.println("finished, total pans hashed: " + generated.longValue());
     System.out.println("number of unique hashes: " + hyperLogLog.size());
+    System.out.println("update conflicts observed: " + hyperLogLog.getAndResetConflicts());
   }
 
   private static void enumerateBinRange(BinRange range, HyperLogLog hyperLogLog, AtomicLong generatedAccumulator, long totalSize) {
     long generated = 0L;Pan pan = range.getStart();
-    Hasher hasher = pan.createHasher();
+    MutableHasher hasher = pan.createMutableHasher();
     for (int i = 0; i < range.size(); i++) {
-      I160 hash = hasher.hash(pan);
+      MutableI160 hash = hasher.hash(pan);
       hyperLogLog.add(hash);
       generated += 1L;
       pan.increment();

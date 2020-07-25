@@ -1,7 +1,11 @@
 ```
--Xmx56g
--XX:+UseParallelGC
+-Xmx32g
+-XX:+UnlockExperimentalVMOptions
+-XX:+UseEpsilonGC
 -XX:+HeapDumpOnOutOfMemoryError
+-XX:+UnlockDiagnosticVMOptions
+-XX:+DebugNonSafepoints
+-XX:StartFlightRecording=filename=recording.jfr,settings=default
 ```
 
 

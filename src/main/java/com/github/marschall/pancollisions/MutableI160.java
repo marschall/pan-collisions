@@ -14,14 +14,14 @@ import java.math.BigInteger;
  */
 final class MutableI160 implements BitAccessor {
 
-  private final int value1;
-  private final long value2;
-  private final long value3;
+  private int value1;
+  private long value2;
+  private long value3;
 
-  private MutableI160(int value1, long value2, long value3) {
-    this.value1 = value1;
-    this.value2 = value2;
-    this.value3 = value3;
+  MutableI160() {
+    this.value1 = 0;
+    this.value2 = 0L;
+    this.value3 = 0L;
   }
 
   @Override
@@ -72,16 +72,16 @@ final class MutableI160 implements BitAccessor {
     return i.toString();
   }
 
-  static MutableI160 valueOf(byte[] b) {
+  void setValue(byte[] b) {
     if (b.length != 20) {
       throw new IllegalArgumentException("array length must be 20");
     }
-    int value1 = (Byte.toUnsignedInt(b[0]) << 24)
+    this.value1 = (Byte.toUnsignedInt(b[0]) << 24)
                 | (Byte.toUnsignedInt(b[1]) << 16)
                 | (Byte.toUnsignedInt(b[2]) << 8)
                 | (Byte.toUnsignedInt(b[3]));
 
-    long value2 = (Byte.toUnsignedLong(b[4]) << 56)
+    this.value2 = (Byte.toUnsignedLong(b[4]) << 56)
             | (Byte.toUnsignedLong(b[5]) << 48)
             | (Byte.toUnsignedLong(b[6]) << 40)
             | (Byte.toUnsignedLong(b[7]) << 32)
@@ -90,7 +90,7 @@ final class MutableI160 implements BitAccessor {
             | (Byte.toUnsignedLong(b[10]) << 8)
             | (Byte.toUnsignedLong(b[11]));
 
-    long value3 = (Byte.toUnsignedLong(b[12]) << 56)
+    this.value3 = (Byte.toUnsignedLong(b[12]) << 56)
             | (Byte.toUnsignedLong(b[13]) << 48)
             | (Byte.toUnsignedLong(b[14]) << 40)
             | (Byte.toUnsignedLong(b[15]) << 32)
@@ -98,8 +98,6 @@ final class MutableI160 implements BitAccessor {
             | (Byte.toUnsignedLong(b[17]) << 16)
             | (Byte.toUnsignedLong(b[18]) << 8)
             | (Byte.toUnsignedLong(b[19]));
-
-    return new MutableI160(value1, value2, value3);
   }
 
 }

@@ -112,7 +112,11 @@ final class Pan {
 //    return new CustomHahser();
   }
 
-  static class CustomHahser implements Hasher {
+  MutableHasher createMutableHasher() {
+    return new MutableHasher();
+  }
+
+  static final class CustomHahser implements Hasher {
 
     private static final int[] X = new int[] {83952648, 84082688, 0, 1, -2147483648, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -154,7 +158,7 @@ final class Pan {
 
   }
 
-  static class Sha1Hasher implements Hasher {
+  static final class Sha1Hasher implements Hasher {
     // https://stackoverflow.com/questions/21107350/how-can-i-access-sha-intrinsic
 
     private static final int BUFFER_SIZE = 160 / 8;
@@ -181,6 +185,37 @@ final class Pan {
         throw new RuntimeException("could not digest message", e);
       }
       return I160.valueOf(this.outputBuffer);
+    }
+
+  }
+
+  static class MutableHasher {
+
+    private static final int BUFFER_SIZE = 160 / 8;
+    private final MessageDigest messageDigest;
+    private final byte[] outputBuffer;
+    private final MutableI160 hash;
+
+
+    MutableHasher() {
+      try {
+        this.messageDigest = MessageDigest.getInstance("SHA-1");
+      } catch (NoSuchAlgorithmException e) {
+        throw new IllegalStateException("SHA-1 not availalbe", e);
+      }
+      this.outputBuffer = new byte[BUFFER_SIZE];
+      this.hash = new MutableI160();
+    }
+
+    MutableI160 hash(Pan pan) {
+      this.messageDigest.update(pan.numbers);
+      try {
+        this.messageDigest.digest(this.outputBuffer, 0, BUFFER_SIZE);
+      } catch (DigestException e) {
+        throw new RuntimeException("could not digest message", e);
+      }
+      this.hash.setValue(this.outputBuffer);
+      return this.hash;
     }
 
   }
