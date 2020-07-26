@@ -13,18 +13,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.eclipse.collections.api.bag.MutableBag;
-import org.eclipse.collections.impl.bag.mutable.HashBag;
-
 import com.github.marschall.pancollisions.Pan.MutableHasher;
 
 public final class CollisionGenerator {
 
   private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("#0.0000");
-
-//  private static final long MAX = 1_000_000_000L;
-  private static final long MAX = 500_000_000L;
-//  private static final long MAX = 1_000_000L;
 
   public static void main(String[] args) throws InterruptedException {
     Path binRangeFile;
@@ -78,29 +71,6 @@ public final class CollisionGenerator {
     long totalGenerated = generatedAccumulator.addAndGet(generated);
     double percent = ((double) totalGenerated / (double) totalSize) * 100.0d;
     System.out.println("finished range, pans hashed: " + generated + " total pans hashed: " + totalGenerated + " progres: " + PERCENT_FORMAT.format(percent) + "%");
-  }
-
-  private static void generateCollisionsSet(List<BinRange> ranges) {
-    MutableBag<I160> collisions = HashBag.newBag(Math.toIntExact(MAX));
-    long generated = 0L;
-    for (BinRange range : ranges) {
-      Pan pan = range.getStart();
-      Hasher hasher = pan.createHasher();
-      for (int i = 0; i < range.size(); i++) {
-        I160 hash = hasher.hash(pan);
-        if (collisions.addOccurrences(hash, 1) > 1) {
-          System.out.println("XXX collision for: " + pan);
-        }
-        if (generated > MAX) {
-          System.out.println("limit reached after " + MAX + " PANs, aborting");
-          return;
-        }
-        generated += 1L;
-        pan.increment();
-      }
-      double percent = ((double) generated / (double) MAX) * 100.0d;
-      System.out.println("finished range, total pans hashed: " + generated + " progres: " + PERCENT_FORMAT.format(percent) + "%");
-    }
   }
 
 }
