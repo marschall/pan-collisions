@@ -98,16 +98,16 @@ public final class HyperLogLog {
     }
 
     void add(int index) {
-      int toAdd = 0;
-      for (int i = 0; i < this.values.length; i++) {
-        if ((index >= (32 * i)) && (index < (32 * (i + 1)))) {
-          toAdd = 1 << (index % 32);
-        }
-        if (toAdd != 0) {
-          long sum = Integer.toUnsignedLong(this.values[i]) + Integer.toUnsignedLong(toAdd);
-          toAdd = (int) (sum >>> 32);
-          this.values[i] = (int) (sum & 0xFF_FF_FF_FF);
-        }
+      int i = index / 32;
+      int toAdd = 1 << (index % 32);
+      long sum = Integer.toUnsignedLong(this.values[i]) + Integer.toUnsignedLong(toAdd);
+      int carray = (int) (sum >>> 32);
+      this.values[i] = (int) (sum & 0xFF_FF_FF_FF);
+      while (carray != 0) {
+        i = i + 1;
+        sum = Integer.toUnsignedLong(this.values[i]) + Integer.toUnsignedLong(carray);
+        carray = (int) (sum >>> 32);
+        this.values[i] = (int) (sum & 0xFF_FF_FF_FF);
       }
     }
 
