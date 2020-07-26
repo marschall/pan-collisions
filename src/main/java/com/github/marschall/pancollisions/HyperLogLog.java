@@ -84,13 +84,13 @@ public final class HyperLogLog {
     private final int[] values;
 
     ExponentRegister() {
-      this.values = new int[4];
+      this.values = new int[8];
     }
 
     void add(int index) {
       int toAdd = 0;
       for (int i = 0; i < this.values.length; i++) {
-        if (index < (32 * i)) {
+        if ((index >= (32 * i)) && (index < (32 * (i + 1)))) {
           toAdd = 1 << (index % 32);
         }
         if (toAdd != 0) {
@@ -102,11 +102,12 @@ public final class HyperLogLog {
     }
 
     BigInteger toBigInteger() {
-      BigInteger value = BigInteger.ZERO;
-      for (int i : this.values) {
-        value = value.shiftLeft(32).add(BigInteger.valueOf(i));
+      BigInteger bigInteger = BigInteger.ZERO;
+      for (int i = this.values.length - 1; i >= 0; --i) {
+        long value = Integer.toUnsignedLong(this.values[i]);
+        bigInteger = bigInteger.shiftLeft(32).add(BigInteger.valueOf(value));
       }
-      return value;
+      return bigInteger;
     }
 
   }
