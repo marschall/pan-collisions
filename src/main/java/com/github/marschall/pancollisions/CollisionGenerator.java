@@ -50,9 +50,12 @@ public final class CollisionGenerator {
     ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     HyperLogLog hyperLogLog = new HyperLogLog();
     AtomicLong generated = new AtomicLong();
+    // FIXME
+    ranges = ranges.subList(0, 1);
     for (BinRange range : ranges) {
       threadPool.submit(() -> enumerateBinRange(range, hyperLogLog, generated, totalSize));
     }
+    threadPool.shutdown();
     threadPool.awaitTermination(365, TimeUnit.DAYS);
     System.out.println("finished, total pans hashed: " + generated.longValue());
     System.out.println("number of unique hashes: " + hyperLogLog.size());

@@ -47,32 +47,42 @@ public final class HyperLogLog {
 //    return Byte.toUnsignedInt(a[registerAddress & REGISTER_MASK]);
     // Byte.toUnsignedInt showed up during profiling
 //    return Byte.toUnsignedInt((byte) ARRAY_HANDLE.getAcquire(a, registerAddress & REGISTER_MASK));
-    byte b = (byte) ARRAY_HANDLE.getAcquire(a, registerAddress & REGISTER_MASK);
+    int i = registerAddress & REGISTER_MASK;
+    byte b = (byte) ARRAY_HANDLE.getAcquire(a, i);
     return (b) & 0xFF;
   }
 
   private int writeValueToRegister(int registerAddress, int expected, int newValue) {
     byte[] a = this.registers[registerAddress >>> REGISTER_SHIFT];
     // a[registerAddress & 0x80_FF_FF_FF] = (byte) value;
-    byte previous = (byte) ARRAY_HANDLE.compareAndExchangeRelease(a, registerAddress & REGISTER_MASK, (byte) expected, (byte) newValue);
-    if (Byte.toUnsignedInt(previous) != expected) {
+    int i = registerAddress & REGISTER_MASK;
+    int witness = Byte.toUnsignedInt((byte) ARRAY_HANDLE.compareAndExchangeRelease(a, i, (byte) expected, (byte) newValue));
+    if (witness != expected) {
       // concurrent update
       this.conflicts.add(1L);
+      return witness;
+    } else {
+      return newValue;
     }
-    return Byte.toUnsignedInt(previous);
   }
 
   public BigInteger size() {
+    // #fractions of 2^32 registers
+    BigInteger exponent = this.computeExponent();
+//    BigInteger m = BigInteger.TWO.pow(32); // we have 2^32 registers
+    BigInteger mSquare = BigInteger.TWO.pow(64);
+    // we don't multiply by am because we don't hash the input so we don't have to deal with hash collisions
+    return BigInteger.ONE;
+  }
+
+  private BigInteger computeExponent() {
     ExponentRegister exponents = new ExponentRegister();
     for (byte[] a : this.registers) {
       for (byte register : a) {
         exponents.add(Byte.toUnsignedInt(register));
       }
     }
-//    BigInteger m = BigInteger.TWO.pow(32); // we have 2^32 registers
-    BigInteger mSquare = BigInteger.TWO.pow(64);
-    // we don't multiply by am because we don't hash the input so we don't have to deal with hash collisions
-    return BigInteger.ONE;
+    return exponents.toBigInteger();
   }
 
   public long getAndResetConflicts() {
